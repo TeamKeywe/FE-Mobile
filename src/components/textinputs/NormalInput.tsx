@@ -1,10 +1,32 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { styles } from './styles/NormalInput.styles';
 import { colors } from '../../constants/colors';
 
-const NormalInput = ({
+interface NormalInputProps {
+  placeholder?: string;
+  errorText?: string;
+  isEditable?: boolean;
+  value: string;
+  onChangeTextHandler?: (text: string) => void;
+  isSecureTextEntry?: boolean;
+  maxLengthNum?: number;
+  onFocusHandler?: () => void;
+  onBlurHandler?: () => void;
+  inputWrpperWidth?: StyleProp<ViewStyle>;
+  style?: StyleProp<TextStyle>;
+}
+
+const NormalInput: React.FC<NormalInputProps> = ({
   placeholder = 'placeholder',
   errorText = '',
   isEditable = true,
@@ -15,6 +37,7 @@ const NormalInput = ({
   onFocusHandler,
   onBlurHandler,
   inputWrpperWidth,
+  style,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 여부
@@ -49,9 +72,10 @@ const NormalInput = ({
           style={[
             styles.input,
             isFocused && styles.focused,
-            errorText && styles.error,
+            !!errorText && styles.error,
             !isEditable && styles.isNotEditable,
             isSecureTextEntry && { paddingRight: '3%' }, // 눈 아이콘 공간 확보
+            style,
           ]}
           secureTextEntry={isSecureTextEntry && !showPassword}
           maxLength={maxLengthNum}
