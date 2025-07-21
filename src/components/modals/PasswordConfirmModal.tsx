@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { verifyPassword } from '../../apis/PasswordApi';
@@ -8,12 +8,17 @@ import { styles } from './styles/PasswordConfirmModal.styles';
 import NormalInput from '../textinputs/NormalInput';
 import NormalButton from '../buttons/NormalButton';
 import WaveHeader from '../headers/WaveHeader';
+import type { NavigationContainerRef } from '@react-navigation/native';
 
-const PasswordConfirmModal = ({ navigationRef }) => {
+interface PasswordConfirmModalProps {
+  navigationRef: React.RefObject<NavigationContainerRef<any>>;
+}
+
+const PasswordConfirmModal: React.FC<PasswordConfirmModalProps> = ({ navigationRef }) => {
   const { isPasswordModalVisible, pendingTab, prevTab, isFromAppState, hidePasswordModal } =
     useModalStore();
-  const [password, setPassword] = useState('');
-  const [errorText, setErrorText] = useState(''); // mediumText ErrorText
+  const [password, setPassword] = useState<string>('');
+  const [errorText, setErrorText] = useState<string>(''); // mediumText ErrorText
   const setLastAuthTime = useAuthStore((state) => state.setLastAuthTime);
 
   useEffect(() => {
@@ -24,11 +29,11 @@ const PasswordConfirmModal = ({ navigationRef }) => {
   }, [isPasswordModalVisible]);
 
   // 비밀번호 규칙 검사 핸들러 (8자 이상, 영문/숫자/특수문자 포함)
-  const isValidPassword = (pw) =>
+  const isValidPassword = (pw: string) =>
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/.test(pw);
 
   // 비밀번호 입력 시 형식 검증
-  const handlePasswordChange = (text) => {
+  const handlePasswordChange = (text: string) => {
     setPassword(text);
 
     if (!isValidPassword(text)) {
@@ -45,10 +50,14 @@ const PasswordConfirmModal = ({ navigationRef }) => {
     }
 
     try {
-      await verifyPassword(password);
+
+      await verifyPassword({password});
       // 인증 성공 시 인증 시각 저장
       setLastAuthTime(Date.now());
+      
+      if (pendingTab) {
       navigationRef.current?.navigate(pendingTab);
+      }
       hidePasswordModal();
     } catch (error) {
       setErrorText('비밀번호가 일치하지 않습니다. 다시 입력해 주세요.');

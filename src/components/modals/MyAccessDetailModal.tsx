@@ -1,11 +1,43 @@
+import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Modal from 'react-native-modal';
 import { styles } from './styles/MyAccessDetailModal.styles';
 import { useAuthStore } from '../../stores/authStore';
 
+interface Guardian {
+  name: string;
+  contact: string;
+}
+
+interface AccessData {
+  hospitalName: string;
+  area: string;
+  visitorType: '환자' | '보호자' | string;
+  startDate: string;
+  expireDate: string;
+  approval: string;
+  patientNumber: number;
+  patientName?: string;
+  guardians?: Guardian[];
+  issuanceStatus: 'ISSUED' | 'PENDING' | 'REJECTED' | 'EXPIRED' | 'PROCESSING' | string;
+}
+
+interface MyAccessDetailModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  data: AccessData | null;
+}
+
 // TODO: Pass-Service 구현 완료 시, 실제 데이터로 변경 필요
-const MyAccessDetailModal = ({ isVisible, onClose, onConfirm, data }) => {
+const MyAccessDetailModal: React.FC<MyAccessDetailModalProps> = ({ 
+  isVisible, 
+  onClose, 
+  onConfirm, 
+  data 
+}) => {
   const { setLoading } = useAuthStore();
+  
   if (!data) return null;
 
   // visitorType에 따라 타이틀 결정
@@ -50,7 +82,7 @@ const MyAccessDetailModal = ({ isVisible, onClose, onConfirm, data }) => {
     <Modal isVisible={isVisible} onBackdropPress={onClose}>
       <View style={styles.modalContainer}>
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
+          // contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
           <Text style={styles.modalTitle}>{data.hospitalName}</Text>

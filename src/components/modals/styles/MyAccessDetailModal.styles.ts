@@ -1,8 +1,21 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 import { fonts } from '../../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  modalContainer: ViewStyle;
+  modalTitle: TextStyle;
+  modalContentTitle: TextStyle;
+  textContainer: ViewStyle;
+  modalText: TextStyle;
+  buttonRow: ViewStyle;
+  button: ViewStyle;
+  QRButton: ViewStyle;
+  cancelButton: ViewStyle;
+  buttonText: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   modalContainer: {
     width: 300,
     maxHeight: '80%',
@@ -26,7 +39,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   textContainer: {
-    marginTop: '7%',
+    // marginTop: '7%', (marginTop 중복 설정 되어있어서 임시로 주석처리)
     marginBottom: '5%',
     marginTop: '5%',
   },
