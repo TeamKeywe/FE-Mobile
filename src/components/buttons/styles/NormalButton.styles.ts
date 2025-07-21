@@ -1,8 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 import { fonts } from '../../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  long: ViewStyle;
+  short: ViewStyle;
+  disabled: ViewStyle;
+  text: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   // 긴 버튼 활성화 스타일 (기본 스타일)
   long: {
     minWidth: '80%',
