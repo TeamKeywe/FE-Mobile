@@ -1,8 +1,20 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../constants/colors';
 import { fonts } from '../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  infoTextPadding: ViewStyle;
+  areaTextPadding: ViewStyle;
+  textTitle: TextStyle;
+  areaText: TextStyle;
+  validateTextPadding: ViewStyle;
+  validateText: TextStyle;
+  infoText: TextStyle;
+  text: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   container: {
     justifyContent: 'space-between',
     borderRadius: 5,

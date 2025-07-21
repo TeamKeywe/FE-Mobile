@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useNormalAlertStore } from '../stores/alertStore';
 //import { dummyVerifyUser } from '../mocks/dummyVerifyUser';
@@ -10,8 +10,29 @@ import NormalInput from '../components/textinputs/NormalInput';
 import NormalButton from '../components/buttons/NormalButton';
 import GrayButton from '../components/buttons/GrayButton';
 
+type RootStackParamList = {
+  LoginPage: undefined;
+  SignUpPage: {
+    name: string;
+    rrn: string;
+    phone: string;
+  };
+};
+
+interface FormData {
+  name: string;
+  rrn: string;
+  phone: string;
+}
+
+interface ErrorData {
+  name?: string;
+  rrn?: string;
+  phone?: string;
+}
+
 //전화번호 포맷 함수 (하이픈 자동 삽입)
-const formatPhoneNumber = (value) => {
+const formatPhoneNumber = (value: string): string => {
   // 숫자만 남김
   const onlyNums = value.replace(/[^0-9]/g, '');
 
@@ -21,7 +42,7 @@ const formatPhoneNumber = (value) => {
 };
 
 //주민등록번호 포맷 함수 (앞6자리-뒤7자리)
-const formatRRN = (value) => {
+const formatRRN = (value: string): string => {
   const onlyNums = value.replace(/[^0-9]/g, '');
 
   if (onlyNums.length < 7) return onlyNums.replace(/(\d{0,6})/, '$1');
@@ -29,7 +50,7 @@ const formatRRN = (value) => {
 };
 
 //주민등록번호 뒷자리 첫글자 이후 마스킹으로 바꿔보이는 함수
-const maskRRN = (rrn) => {
+const maskRRN = (rrn: string): string => {
   // rrn: '123456-1234567'
   if (!rrn) return '';
   const [front, back] = rrn.split('-');
@@ -41,26 +62,26 @@ const maskRRN = (rrn) => {
   return `${front}-${maskedBack}`;
 };
 
-const SignUpVerificationPage = () => {
+const SignUpVerificationPage: React.FC = () => {
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormData>({
     name: '', //이름
     rrn: '', // 주민등록번호
     phone: '', /// 전화번호
   });
 
-  const [isRRNFocused, setIsRRNFocused] = useState(false); //주민등록번호 포커스 여부
-  const [error, setError] = useState({}); // 에러 메시지
+  const [isRRNFocused, setIsRRNFocused] = useState<boolean>(false); //주민등록번호 포커스 여부
+  const [error, setError] = useState<ErrorData>({}); // 에러 메시지
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const navigateToLogin = () => {
     navigation.navigate('LoginPage');
   };
 
   //공통 핸들러 - 입력값 변경을 처리
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     // field : 바꿀 필드의 이름 (ex. name), value : 입력된 새로운 값
     let formattedValue = value;
     if (field === 'phone') {
@@ -80,7 +101,7 @@ const SignUpVerificationPage = () => {
 
   //인증 버튼 핸들러
   const handleVerification = () => {
-    let newError = {};
+    let newError: ErrorData = {};
     if (!form.name) newError.name = '이름을 입력하세요';
     if (!form.rrn) newError.rrn = '주민등록번호를 입력하세요';
     if (!form.phone) newError.phone = '전화번호를 입력하세요';
@@ -138,7 +159,7 @@ const SignUpVerificationPage = () => {
         enableOnAndroid={true} // 안드로이드 자동 스크롤 설정
       >
         <WaveHeader />
-        <View style={styles.padding}>
+        <View>
           <Text style={styles.title}>회원가입</Text>
         </View>
         <NormalInput

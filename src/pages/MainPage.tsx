@@ -1,22 +1,47 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Image } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
-import { getAccessList } from '../apis/MyAccessListApi';
+import { useNavigation, useRoute, useFocusEffect, RouteProp, NavigationProp } from '@react-navigation/native';
+import { getAccessList, AccessPass } from '../apis/MyAccessListApi';
 import { getHospitalList } from '../apis/AccessRequestApi';
 import { useAuthStore } from '../stores/authStore';
 import { useNormalAlertStore } from '../stores/alertStore';
 import { styles } from './styles/MainPage.styles';
 import QrCards from '../components/cards/QrCards';
 
+interface Hospital {
+  hospitalId: number;
+  hospitalName: string;
+}
+
+interface UserVC {
+  passId: number;
+  memberId: number;
+  memberName: string;
+  hospitalId: number;
+  accessAreaCodes: string[];
+  visitCategory: string;
+  startedAt: string;
+  expiredAt: string;
+  userName: string;
+  hospitalName: string;
+  startDate: string;
+  expireDate: string;
+  did: string;
+}
+
+type RootStackParamList = {
+  MainPage: { passId?: number };
+};
+
 // TODO: 리펙토링 할 때 같은 코드는 export해서 import해서 쓰기
 // 병원 Id로 병원 이름 찾기
-function getHospitalNameByList(hospitalId, hospitalNameList) {
+function getHospitalNameByList(hospitalId: number, hospitalNameList: Hospital[]): string {
   const hospital = hospitalNameList.find((hospital) => hospital.hospitalId === hospitalId);
   return hospital ? hospital.hospitalName : `병원명 로딩 중 . . .병원: #${hospitalId}`;
 }
 
 // 출입증 객체에 accessAreaCodes 필드 추가
-function addAccessAreaCodesField(list) {
+function addAccessAreaCodesField(list: AccessPass[]): (AccessPass & { accessAreaCodes: string[] })[] {
   return (list || []).map((item) => ({
     ...item,
     accessAreaCodes: item.accessAreas ? item.accessAreas.map((area) => area.areaCode) : [],
@@ -38,7 +63,11 @@ function addAccessAreaCodesField(list) {
 // }
 
 // 출입증 데이터로 임시 VC 생성 - did 적용 전
-function generateUserVCfromAccessList(AccessList, hospitalNameList, userName) {
+function generateUserVCfromAccessList(
+  AccessList: AccessPass[],
+  hospitalNameList: Hospital[],
+  userName: string,
+): UserVC[] {
   const withCodes = addAccessAreaCodesField(AccessList);
   return withCodes.map((item) => {
     // 카드에 표시될 데이터
@@ -71,7 +100,7 @@ function generateUserVCfromAccessList(AccessList, hospitalNameList, userName) {
 }
 
 // 날짜 포맷 함수 (YYYY-MM-DD HH:mm)
-const formatDateTime = (date) => {
+const formatDateTime = (date: string): string => {
   if (!date) return '';
   const d = new Date(date);
   const yyyy = d.getFullYear();
@@ -82,7 +111,7 @@ const formatDateTime = (date) => {
   return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
 };
 
-function isQrAvailable(item) {
+function isQrAvailable(item: AccessPass): boolean {
   if (item.issuanceStatus !== 'ISSUED') return false;
   const now = new Date();
   const start = new Date(item.startedAt);
@@ -90,23 +119,23 @@ function isQrAvailable(item) {
   return start <= now && now <= end;
 }
 
-const MainPage = () => {
+const MainPage: React.FC = () => {
   const { loading, setLoading, userInfo } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
   // 임시: 상태변수로 출입 권한 제어
-  const [hasAccessAuthority, setHasAccessAuthority] = useState(true);
+  const [hasAccessAuthority, setHasAccessAuthority] = useState<boolean>(true);
 
   // 임시: QR에 담을 JSON 문자열
   //const qrData = JSON.stringify(userVC);
 
-  const [hospitalNameList, setHospitalNameList] = useState([]);
-  const [myAccessList, setMyAccessList] = useState([]);
-  const [userVC, setUserVC] = useState([]);
-  const [userName, setUserName] = useState('');
+  const [hospitalNameList, setHospitalNameList] = useState<Hospital[]>([]);
+  const [myAccessList, setMyAccessList] = useState<AccessPass[]>([]);
+  const [userVC, setUserVC] = useState<UserVC[]>([]);
+  const [userName, setUserName] = useState<string>('');
 
-  const navigation = useNavigation();
-  const route = useRoute();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'MainPage'>>();
 
   // initialPassId를 route에서 꺼냄
   const initialPassId = route?.params?.passId;
@@ -136,7 +165,7 @@ const MainPage = () => {
 
           // 목업 출입증 데이터 불러오기
           // setMyAccessList(mockAccessList);
-        } catch (error) {
+        } catch (error: unknown) {
           showNormalAlert({
             title: '출입 QR 조회 실패',
             message: `출입 QR 조회 중\n오류가 발생했습니다.\n잠시 후 다시 시도해 주세요.`,

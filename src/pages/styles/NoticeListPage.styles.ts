@@ -1,8 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { fonts } from '../../constants/fonts';
 import { colors } from '../../constants/colors';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  btnStyle: ViewStyle;
+  text: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
     backgroundColor: colors.primary,

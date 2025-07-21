@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { updatePassword } from '../apis/PasswordApi';
 import { useAuthStore } from '../stores/authStore';
@@ -10,20 +10,20 @@ import WaveHeader from '../components/headers/WaveHeader';
 import NormalInput from '../components/textinputs/NormalInput';
 import NormalButton from '../components/buttons/NormalButton';
 
-const ChangePasswordPage = () => {
+const ChangePasswordPage: React.FC = () => {
   const { setLoading } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
   const [originalPassword, setOriginalPassword] = useState(''); // 기존 비밀번호
-  const [newPassword, setNewPassword] = useState(''); // 새 비밀번호
-  const [confirmNewPassword, setConfirmNewPassword] = useState(''); // 새 비밀번호 확인
-  const [isVerified, setIsVerified] = useState(false); // 새 비밀번호 확인 인증 여부
-  const [isSubmitted, setIsSubmitted] = useState(false); // 제출 버튼 눌렀는지 여부
+  const [newPassword, setNewPassword] = useState<string>(''); // 새 비밀번호
+  const [confirmNewPassword, setConfirmNewPassword] = useState<string>(''); // 새 비밀번호 확인
+  const [isVerified, setIsVerified] = useState<boolean>(false); // 새 비밀번호 확인 인증 여부
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false); // 제출 버튼 눌렀는지 여부
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   // 비밀번호 규칙 검사 핸들러 (8자 이상, 영문/숫자/특수문자 포함)
-  const isValidPassword = (pw) =>
+  const isValidPassword = (pw: string): boolean =>
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/.test(pw);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const ChangePasswordPage = () => {
           onConfirmHandler: navigateToHome,
         });
       }, 300);
-    } catch (error) {
+    } catch (error: any) {
       const status = error.response.data.status;
       let message = `비밀번호 변경 중\n오류가 발생했습니다.\n잠시 후 다시 시도해 주세요.`;
 
@@ -91,7 +91,7 @@ const ChangePasswordPage = () => {
   return (
     <>
       <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollView}
+        // contentContainerStyle={styles.scrollView}
         keyboardShouldPersistTaps="handled" //입력 도중 입력창 외 다른 부분을 터치 했을 때 내려감
         extraScrollHeight={40} // 키보드와 입력창 사이 간격
         enableOnAndroid={true} // 안드로이드 자동 스크롤 설정

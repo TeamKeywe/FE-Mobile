@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { getHospitalList } from '../apis/AccessRequestApi';
 import { useAuthStore } from '../stores/authStore';
@@ -7,13 +7,18 @@ import { styles } from './styles/AccessRequestPage.styles';
 import NormalInput from '../components/textinputs/NormalInput';
 import NormalList from '../components/lists/NormalList';
 
-const AccessRequestPage = () => {
+interface Hospital {
+  hospitalId: number;
+  hospitalName: string;
+}
+
+const AccessRequestPage: React.FC = () => {
   const { setLoading } = useAuthStore();
   const setHospitalList = useHospitalStore.getState().setHospitalList;
-  const hospitalList = useHospitalStore.getState().hospitalList;
+  const hospitalList = useHospitalStore.getState().hospitalList as Hospital[];
 
-  const [searchText, setSearchText] = useState('');
-  const [hospitalName, setHospitalName] = useState([]);
+  const [searchText, setSearchText] = useState<string>('');
+  const [hospitalName, setHospitalName] = useState<Hospital[]>([]);
 
   // 병원 목록 불러오기
   useEffect(() => {
@@ -50,10 +55,10 @@ const AccessRequestPage = () => {
         <NormalList
           items={filteredHospitals}
           nextPage="AccessRequestRolePage"
-          renderItem={(item, index, isSelected) => (
+          renderItem={(item: Hospital, index: number, isSelected: boolean) => (
             <Text style={styles.itemText}>{item.hospitalName}</Text>
           )}
-          navigationParams={(item) => ({
+          navigationParams={(item: Hospital) => ({
             hospitalId: item.hospitalId,
             hospitalName: item.hospitalName,
           })}

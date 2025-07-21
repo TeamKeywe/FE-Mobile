@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { getAccessList } from '../apis/MyAccessListApi';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { getAccessList, AccessPass } from '../apis/MyAccessListApi';
 import { getHospitalList } from '../apis/AccessRequestApi';
 import { useAuthStore } from '../stores/authStore';
 import { useNormalAlertStore } from '../stores/alertStore';
@@ -10,27 +10,60 @@ import { styles } from './styles/MyAccessListPage.styles';
 import MyAccessDetailModal from '../components/modals/MyAccessDetailModal';
 import NormalListDeep from '../components/lists/NormalListDeep';
 
-//병원 Id로 병원 이름 찾기
-function getHospitalNameByList(hospitalId, hospitalNameList) {
-  const hospital = hospitalNameList.find((hospital) => hospital.hospitalId === hospitalId);
-  return hospital ? hospital.hospitalName : `병원명 로딩 중 . . .병원: #${hospitalId}`;
+interface Hospital {
+  hospitalId: number;
+  hospitalName: string;
 }
 
-const MyAccessListPage = () => {
+interface AccessPassWithNames extends AccessPass {
+  accessAreaNames: string[];
+  guardians?: any;
+}
+
+interface Section {
+  hospitalId: number;
+  contentTitle?: string;
+  accessList: { data: AccessPassWithNames }[];
+}
+
+interface AccessDetailData {
+  hospitalName: string;
+  area: string;
+  visitorType: string;
+  startDate: string;
+  expireDate: string;
+  approval: string;
+  patientNumber: number;
+  issuer: number;
+  passId: number;
+  guardians?: any;
+  patientName?: string;
+  issuanceStatus: string;
+  startedAt: string;
+  expiredAt: string;
+}
+
+const MyAccessListPage: React.FC = () => {
   const { setLoading } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
   const hospitalList = useHospitalStore.getState().hospitalList;
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
-  const [myAccessList, setMyAccessList] = useState([]);
-  const [hospitalNameList, setHospitalNameList] = useState([]);
+  const [myAccessList, setMyAccessList] = useState<AccessPassWithNames[]>([]);
+  const [hospitalNameList, setHospitalNameList] = useState<Hospital[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Alert 관리 상태변수
   const [showModal, setShowModal] = useState(false); // 모달 표시 여부
-  const [selectedAccess, setSelectedAccess] = useState(null); // 클릭된 출입증
+  const [selectedAccess, setSelectedAccess] = useState<AccessDetailData | null>(null); // 클릭된 출입증
+
+  //병원 Id로 병원 이름 찾기
+  const getHospitalName = (hospitalId: number): string => {
+    const hospital = hospitalNameList.find((h) => h.hospitalId === hospitalId);
+    return hospital ? hospital.hospitalName : `병원명 로딩 중 . . .병원: #${hospitalId}`;
+  };
 
   // 병원 목록 불러오기
   useEffect(() => {
@@ -97,7 +130,7 @@ const MyAccessListPage = () => {
   };
 
   // 출입증 객체에 accessAreaNames 필드 추가
-  function addAccessAreaNamesField(list) {
+  function addAccessAreaNamesField(list: AccessPass[]): AccessPassWithNames[] {
     return (list || []).map((item) => ({
       ...item,
       accessAreaNames: item.accessAreas ? item.accessAreas.map((area) => area.areaName) : [],
@@ -105,13 +138,17 @@ const MyAccessListPage = () => {
   }
 
   // 출입 권한 클릭 시 모달 띄우기
-  const handleItemPress = (section, item, index) => {
+  const handleItemPress = (
+    section: { contentTitle?: string },
+    item: { data: AccessPassWithNames },
+    index: number
+  ) => {
     const access = item.data;
     const isPatient = access.visitCategory === 'PATIENT';
     const isGuardian = access.visitCategory === 'GUARDIAN';
 
     setSelectedAccess({
-      hospitalName: section.contentTitle,
+      hospitalName: section.contentTitle!,
       area: (access.accessAreaNames || []).map((name) => `${name}`).join('\n'),
       visitorType: getVisitCategoryLabel(access.visitCategory),
       startDate: formatDateTime(access.startedAt),
@@ -131,7 +168,7 @@ const MyAccessListPage = () => {
   };
 
   // visitCategory 변환 함수
-  const getVisitCategoryLabel = (category) => {
+  const getVisitCategoryLabel = (category: string): string => {
     switch (category) {
       case 'PATIENT':
         return '환자';
@@ -143,7 +180,7 @@ const MyAccessListPage = () => {
   };
 
   // 날짜 포맷 함수 (YYYY-MM-DD HH:mm)
-  const formatDateTime = (date) => {
+  const formatDateTime = (date: string): string => {
     if (!date) return '';
     const d = new Date(date);
     const yyyy = d.getFullYear();
@@ -155,7 +192,11 @@ const MyAccessListPage = () => {
   };
 
   // 출입 가능 상태 함수
-  const getApprovalStatus = (startedAt, expiredAt, issuanceStatus) => {
+  const getApprovalStatus = (
+    startedAt: string,
+    expiredAt: string,
+    issuanceStatus: string
+  ) => {
     const now = new Date();
     const start = new Date(startedAt);
     const end = new Date(expiredAt);
@@ -172,12 +213,13 @@ const MyAccessListPage = () => {
     else return '거절';
   };
 
-  //병원 Id로 병원 이름 찾기
-  const getHospitalName = (hospitalId) => getHospitalNameByList(hospitalId, hospitalNameList);
-
   // 만료/거절 제외 & 시작일 오름차순 정렬
   // 상태 우선순위 함수 추가
-  const getStatusPriority = (startedAt, expiredAt, issuanceStatus) => {
+  const getStatusPriority = (
+    startedAt: string,
+    expiredAt: string,
+    issuanceStatus: string
+  ) => {
     const status = getApprovalStatus(startedAt, expiredAt, issuanceStatus);
     switch (status) {
       case '출입\n가능':
@@ -210,11 +252,11 @@ const MyAccessListPage = () => {
       if (aPriority !== bPriority) {
         return aPriority - bPriority;
       }
-      return new Date(a.startedAt) - new Date(b.startedAt);
+      return new Date(a.startedAt).getTime() - new Date(b.startedAt).getTime();
     });
 
   // NormalListDeep에 넘길 데이터 가공
-  const sections = filteredAndSortedList.reduce((acc, cur) => {
+  const sections: Section[] = filteredAndSortedList.reduce<Section[]>((acc, cur) => {
     //acc - accumulator(누적값, 병원별로 묶안 배열), cur - current(현재 배열에서 처리중인 값)
     const hospitalId = cur.hospitalId;
     let hospitalName = getHospitalName(hospitalId); //id로 이름 찾아서 저장
@@ -228,7 +270,7 @@ const MyAccessListPage = () => {
       };
       acc.push(section);
     }
-    section.accessList.push(cur); //해당 병원 그룹의 accessList 배열에 현재 출입증 추가
+    section.accessList.push({ data: cur }); //해당 병원 그룹의 accessList 배열에 현재 출입증 추가
     return acc; //누적값 반환해서 다음 루프에 이어감
   }, []);
 
@@ -242,10 +284,11 @@ const MyAccessListPage = () => {
             paddingHorizontal: 0,
             borderBottomWidth: 0,
           }}
-          sections={sections.map((section) => ({
-            ...section,
-            accessList: section.accessList.map((item) => ({ data: item })),
-          }))}
+          // sections={sections.map((section) => ({
+          //   ...section,
+          //   accessList: section.accessList.map((item) => ({ data: item })),
+          // }))}
+          sections={sections}
           onItemPress={handleItemPress}
           refreshing={refreshing}
           onRefresh={onRefresh}

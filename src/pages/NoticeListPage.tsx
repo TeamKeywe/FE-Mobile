@@ -9,7 +9,21 @@ import { styles } from './styles/NoticeListPage.styles';
 import NoticeList from '../components/notices/NoticeList';
 import GrayButton from '../components/buttons/GrayButton';
 
-const titleTypeMap = {
+interface NoticeItem {
+  id: number;
+  type: 'APPROVE' | 'REJECT' | 'APPLY';
+  date: string;
+  time: string;
+  message: string;
+}
+
+interface RawNoticeItem {
+  title: string;
+  content: string;
+  createdAt: string;
+}
+
+const titleTypeMap: Record<string, 'APPROVE' | 'REJECT' | 'APPLY'> = {
   '보호자 신청 승인': 'APPROVE',
   '보호자 신청 거절': 'REJECT',
   '보호자 신청': 'APPLY',
@@ -17,7 +31,7 @@ const titleTypeMap = {
 
 const clearLastReadNoticeAt = useNoticeBadgeStore.getState().clearLastReadNoticeAt;
 
-function convertToOldFormat(data) {
+function convertToOldFormat(data: RawNoticeItem[]): NoticeItem[] {
   return data.map((item, idx) => {
     const [date, time] = item.createdAt.split('T');
     return {
@@ -30,11 +44,11 @@ function convertToOldFormat(data) {
   });
 }
 
-export default function NoticeListPage() {
+export default function NoticeListPage(): JSX.Element {
   const { setLoading } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
-  const [noticeList, setNoticeList] = useState([]);
+  const [noticeList, setNoticeList] = useState<NoticeItem[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   // 알림 전체 삭제

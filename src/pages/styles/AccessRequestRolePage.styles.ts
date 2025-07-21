@@ -1,8 +1,20 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../constants/colors';
 import { fonts } from '../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  scrollView: ViewStyle;
+  title: TextStyle;
+  divider: ViewStyle;
+  buttonContainer: ViewStyle;
+  contentContainer: ViewStyle;
+  contentTitle: TextStyle;
+  submitButton: ViewStyle;
+  noDatesText: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
     paddingHorizontal: '10%',
