@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
-import { AppState } from 'react-native';
+import { AppState, AppStateStatus  } from 'react-native';
 import { useNoticeBadgeStore } from '../stores/noticeStore';
 import { getMostRecentNotice } from '../apis/NoticeListApi';
+
+interface Notice {
+  createdAt: string;
+}
 
 export function useNoticeBadge() {
   const lastReadNoticeAt = useNoticeBadgeStore((s) => s.lastReadNoticeAt);
@@ -12,7 +16,7 @@ export function useNoticeBadge() {
   // 최신 알림과 lastReadNoticeAt 비교 함수
   const checkNotice = async () => {
     try {
-      const recent = await getMostRecentNotice();
+      const recent: Notice | null = await getMostRecentNotice();
       if (!recent?.createdAt) {
         setHasUnread(false);
         return;
@@ -29,7 +33,7 @@ export function useNoticeBadge() {
 
   // 앱 활성화(AppState) 시 체크
   useEffect(() => {
-    const handleAppStateChange = (nextAppState) => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
         checkNotice();
       }
