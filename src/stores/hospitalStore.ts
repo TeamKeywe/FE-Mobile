@@ -2,12 +2,24 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const useHospitalStore = create(
+export interface Hospital {
+  hospitalId: number;
+  hospitalName: string;
+}
+
+interface HospitalStore {
+  hospitalList: Hospital[];
+  setHospitalList: (list: Hospital[]) => void;
+  getHospitalNameById: (id: number) => string;
+  clearHospitalList: () => void;
+}
+
+export const useHospitalStore = create<HospitalStore>()(
   persist(
     (set, get) => ({
       hospitalList: [],
-      setHospitalList: (list) => set({ hospitalList: list }),
-      getHospitalNameById: (id) => {
+      setHospitalList: (list: Hospital[]) => set({ hospitalList: list }),
+      getHospitalNameById: (id: number): string => {
         const found = get().hospitalList.find((h) => h.hospitalId === id);
         return found ? found.hospitalName : '';
       },
