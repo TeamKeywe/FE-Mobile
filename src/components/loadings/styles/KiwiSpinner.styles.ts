@@ -1,6 +1,11 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, ImageStyle } from 'react-native';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  contentContainer: ViewStyle;
+  animationImage: ImageStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   // 전체 컨테이너
   contentContainer: {
     alignItems: 'center',

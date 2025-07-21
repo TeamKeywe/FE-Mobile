@@ -1,8 +1,8 @@
-import { useRef, useEffect } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { Animated, Easing, View, ImageStyle } from 'react-native';
 import { styles } from './styles/KiwiSpinner.styles';
 
-const KiwiSpinner = () => {
+const KiwiSpinner : React.FC = () => {
   // useRef를 이용해서 Animated.Value(0)를 생성하고 .current로 값을 꺼냄
   // 0~1로 값이 변하면서 이미지 회전에 사용
   const spinValue = useRef(new Animated.Value(0)).current;

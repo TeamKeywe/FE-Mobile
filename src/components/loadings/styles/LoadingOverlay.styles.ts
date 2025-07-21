@@ -1,6 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  overlay: ViewStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.2)', // 반투명 검정
