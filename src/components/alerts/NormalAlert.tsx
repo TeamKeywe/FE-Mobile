@@ -1,6 +1,19 @@
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { styles } from './styles/NormalAlert.styles';
 
+
+interface NormalAlertProps {
+  show: boolean;
+  title: string;
+  message: string;
+  showCancel?: boolean;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirmHandler: () => void;
+  onCancelHandler?: () => void;
+  left?: boolean;
+}
+
 const NormalAlert = ({
   show, // Alert 표시 여부 boolean 값 (상태 변수로 관리)
   title, // Alert 제목
@@ -11,7 +24,7 @@ const NormalAlert = ({
   onConfirmHandler, // 확인 버튼 핸들러
   onCancelHandler, // 취소 버튼 핸들러
   left = false, // message left 정렬 여부
-}) => {
+}: NormalAlertProps): JSX.Element => {
   return (
     <AwesomeAlert
       show={show} // Alert 표시 여부 제어 핸들러

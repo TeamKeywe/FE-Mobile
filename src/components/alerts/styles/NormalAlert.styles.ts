@@ -1,8 +1,18 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 import { fonts } from '../../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  alert: ViewStyle;
+  alertTitle: TextStyle;
+  alertMessage: TextStyle;
+  alertMessageLeft: TextStyle;
+  alertConfirm: ViewStyle;
+  alertCancel: ViewStyle;
+  alertButtonText: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   alert: {
     width: 300,
     height: 'auto',
