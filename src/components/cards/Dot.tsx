@@ -3,11 +3,15 @@ import { Animated } from 'react-native';
 import { styles } from './styles/Dot.styles';
 import { colors } from '../../constants/colors';
 
+interface DotProps {
+  active: boolean;
+}
+
 // dot의 기본 너비와 활성화(선택) 상태일 때의 너비
 const DOT_WIDTH = 10;
 const DOT_ACTIVE_WIDTH = 16;
 
-const Dot = ({ active }) => {
+const Dot = ({ active }: DotProps): JSX.Element => {
   // dot width를 위한 Animated.Value 배열
   const animatedWidth = useRef(new Animated.Value(active ? DOT_ACTIVE_WIDTH : DOT_WIDTH)).current;
   // dot 색상 변경을 위한 Animated.Value 배열

@@ -1,9 +1,35 @@
 import { useRef } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
 import CardFlip from 'react-native-card-flip';
+import type { PropsWithChildren } from 'react';
 import QRCode from 'react-native-qrcode-svg';
 import { styles } from './styles/QrCard.styles';
 import { colors } from '../../constants/colors';
+
+interface QrCardProps {
+  hasAccessAuthority: boolean;
+  did: string;
+  userName: string;
+  hospitalName: string;
+  startDate: string;
+  expireDate: string;
+  passId: number;
+  memberId: number;
+  memberName: string;
+  hospitalId: number;
+  accessAreaCodes: string[];
+  visitCategory: string;
+  startedAt: string;
+  expiredAt: string;
+}
+
+type FixedCardFlipProps = PropsWithChildren<{
+  style?: StyleProp<ViewStyle>;
+  flipDirection?: 'x' | 'y';
+  ref?: any;
+}>;
+
+const CardFlipTyped = CardFlip as unknown as React.FC<FixedCardFlipProps>;
 
 // hasAccessAuthority: 출입 권한 여부, userVC : VC에 담을 사용자 정보, qrData : QR에 담을 JSON 문자열
 const QrCard = ({
@@ -21,7 +47,7 @@ const QrCard = ({
   visitCategory,
   startedAt,
   expiredAt,
-}) => {
+}: QrCardProps): JSX.Element => {
   // 해당 QR의 상세 페이지로 이동 (아직 미구현)
   //const navigation = useNavigation();
   //   const navigateToAccessListDeatail = () => {
@@ -29,7 +55,7 @@ const QrCard = ({
   //   };
 
   // CardFlip의 ref 선언
-  const cardFlipRef = useRef();
+  const cardFlipRef = useRef<any>(null);
   // 임시: QR에 담을 JSON 문자열
   // const qrData = JSON.stringify({ did, userName, hospitalName, startDate, expireDate });
 
@@ -67,7 +93,11 @@ const QrCard = ({
   }
 
   return (
-    <CardFlip style={styles.shadowWrapperContainer} ref={cardFlipRef} flipDirection="y">
+    <CardFlipTyped
+      style={styles.shadowWrapperContainer} 
+      ref={cardFlipRef} 
+      flipDirection="y"
+      >
       {/* 앞면 */}
       <TouchableOpacity
         activeOpacity={0.9}
@@ -125,7 +155,7 @@ const QrCard = ({
           <Text style={styles.flipHintBack}>카드를 다시 눌러 앞면으로</Text>
         </View>
       </TouchableOpacity>
-    </CardFlip>
+    </CardFlipTyped>
   );
 };
 

@@ -1,10 +1,27 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 import { fonts } from '../../../constants/fonts';
 
 const { width } = Dimensions.get('window');
 
-export const styles = StyleSheet.create({
+interface Styles {
+  shadowWrapperContainer: ViewStyle;
+  shadowWrapper: ViewStyle;
+  cardContainer: ViewStyle;
+  backgroundImage: ImageStyle;
+  cardText: TextStyle;
+  cardSubText: TextStyle;
+  qrTitle: TextStyle;
+  userName: TextStyle;
+  hospitalText: TextStyle;
+  dateText: TextStyle;
+  flipHint: TextStyle;
+  qrFullWrapper: ViewStyle;
+  backCard: ViewStyle;
+  flipHintBack: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   shadowWrapperContainer: {
     height: '100%', // 카드 높이를 부모에 맞춤
   },

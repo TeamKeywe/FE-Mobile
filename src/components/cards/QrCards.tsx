@@ -1,8 +1,37 @@
 import { useRef, useState, useEffect } from 'react';
-import { View, Dimensions, Animated } from 'react-native';
+import { 
+  View, 
+  Dimensions, 
+  Animated,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  FlatList, 
+} from 'react-native';
 import { styles } from './styles/QrCards.styles';
 import QrCard from './QrCard';
 import DotPagination from './DotPagination';
+
+interface UserVC {
+  did: string;
+  userName: string;
+  hospitalName: string;
+  startDate: string;
+  expireDate: string;
+  passId: number;
+  memberId: number;
+  memberName: string;
+  hospitalId: number;
+  accessAreaCodes: string[];
+  visitCategory: string;
+  startedAt: string;
+  expiredAt: string;
+}
+
+interface QrCardsProps {
+  userVC: UserVC[];                
+  hasAccessAuthority: boolean;    
+  initialIndex?: number;
+}
 
 // 화면의 가로 길이 가져오기
 const { width } = Dimensions.get('window');
@@ -10,9 +39,13 @@ const CARD_WIDTH = width;
 const OVERLAP_RATE = 0.3; // 카드가 겹치는 비율
 const OVERLAP = CARD_WIDTH * OVERLAP_RATE; // 카드 간 겹치는 너비
 
-const QrCards = ({ userVC, hasAccessAuthority, initialIndex = 0 }) => {
+const QrCards = ({ 
+  userVC, 
+  hasAccessAuthority, 
+  initialIndex = 0,
+}: QrCardsProps): JSX.Element  => {
   const [pageIndex, setPageIndex] = useState(initialIndex);
-  const flatListRef = useRef(null);
+  const flatListRef = useRef<FlatList<UserVC> | null>(null);
 
   const scrollX = useRef(new Animated.Value(initialIndex * (CARD_WIDTH - OVERLAP))).current;
 
@@ -29,20 +62,35 @@ const QrCards = ({ userVC, hasAccessAuthority, initialIndex = 0 }) => {
   if (!hasAccessAuthority || !userVC || userVC.length === 0) {
     return (
       <View style={{ flex: 0.8, width, alignItems: 'center' }}>
-        <QrCard hasAccessAuthority={false} />
+        <QrCard 
+          hasAccessAuthority={false}
+          did=""
+          userName=""
+          hospitalName=""
+          startDate=""
+          expireDate=""
+          passId={0}
+          memberId={0}
+          memberName=""
+          hospitalId={0}
+          accessAreaCodes={[]}
+          visitCategory=""
+          startedAt=""
+          expiredAt=""
+        />
       </View>
     );
   }
 
   // 스크롤이 끝났을 때 현재 페이지 인덱스 계산
-  const onMomentumScrollEnd = (event) => {
+  const onMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(offsetX / (CARD_WIDTH - OVERLAP));
     setPageIndex(newIndex);
   };
 
   // dot(인디케이터) 클릭 시 해당 카드로 이동
-  const handleDotPress = (index) => {
+  const handleDotPress = (index: number) => {
     const offset = index * (CARD_WIDTH - OVERLAP);
     flatListRef.current?.scrollToOffset({ offset, animated: true });
     setPageIndex(index);
@@ -66,15 +114,16 @@ const QrCards = ({ userVC, hasAccessAuthority, initialIndex = 0 }) => {
           offset: (CARD_WIDTH - OVERLAP) * index,
           index,
         })}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
-          useNativeDriver: true,
-          listener: (event) => {
-            // 페이지 이동시 dot 인디케이터 업데이트 (자연스럽게 표시)
-            const offsetX = event.nativeEvent.contentOffset.x;
-            const index = Math.round(offsetX / (CARD_WIDTH - OVERLAP));
-            if (index !== pageIndex) setPageIndex(index);
-          },
-        })}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], 
+          {
+            useNativeDriver: true,
+            listener: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+              // 페이지 이동시 dot 인디케이터 업데이트 (자연스럽게 표시)
+              const offsetX = event.nativeEvent.contentOffset.x;
+              const index = Math.round(offsetX / (CARD_WIDTH - OVERLAP));
+              if (index !== pageIndex) setPageIndex(index);
+            },
+          })}
         scrollEventThrottle={16}
         renderItem={({ item, index }) => {
           const inputRange = [

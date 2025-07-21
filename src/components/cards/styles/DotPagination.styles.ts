@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 
 // TODO: 도트 상수 문서화
@@ -6,7 +6,15 @@ export const DOT_SIZE = 12; // 도트 크기
 export const DOT_MARGIN = 8; // 도트 사이 간격
 export const MAX_DOTS = 8; // 한 그룹 최대 도트 수
 
-export const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  arrowContainer: ViewStyle;
+  arrow: ViewStyle;
+  arrowText: TextStyle;
+  dotsWrapper: ViewStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   container: {
     flexDirection: 'row',
     alignItems: 'center',

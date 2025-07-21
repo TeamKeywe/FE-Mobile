@@ -3,10 +3,16 @@ import { View, TouchableOpacity, Text, Animated } from 'react-native';
 import { styles } from './styles/DotPagination.styles';
 import Dot from './Dot';
 
+interface DotPaginationProps {
+  total: number;
+  currentIndex: number;
+  onPress: (index: number) => void;
+}
+
 // 한번에 보이는 최대 DOT 개수
 const MAX_DOTS = 8;
 
-const DotPagination = ({ total, currentIndex, onPress }) => {
+const DotPagination = ({ total, currentIndex, onPress }: DotPaginationProps): JSX.Element => {
   const groupCount = Math.ceil(total / MAX_DOTS); //전체 도트 수를 MAX_DOTS로 나눈 그룹 개수
   const currentGroup = Math.floor(currentIndex / MAX_DOTS); //현재 인덱스가 속한 그룹 번호
   const start = currentGroup * MAX_DOTS; // 현재 그룹에서 첫번째 도트 인덱스
