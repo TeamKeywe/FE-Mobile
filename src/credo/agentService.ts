@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer/';
 
-global.Buffer = Buffer;
+(global as any).Buffer = Buffer;
 
 import {
   Agent,
@@ -40,7 +40,7 @@ import {
   IndyVdrIndyDidResolver,
 } from '@credo-ts/indy-vdr';
 import { agentDependencies } from '@credo-ts/react-native';
-import '@hyperledger/aries-askar-react-native';
+import { ariesAskar } from '@hyperledger/aries-askar-react-native';
 import 'react-native-get-random-values';
 import 'react-native-quick-crypto'; // crypto 폴리필
 import axios from 'axios';
@@ -53,10 +53,17 @@ const walletKey = 'testkey00000000000000000000000000';
 
 //const MEDIATOR_INVITATION_URL = 'ws://192.168.0.115:8000?oob=eyJAdHlwZSI6ICJodHRwczovL2RpZGNvbW0ub3JnL291dC1vZi1iYW5kLzEuMS9pbnZpdGF0aW9uIiwgIkBpZCI6ICJkNjg4YjkwYi0zOWFhLTQyN2MtYjk1MS1iMjRmZTYxZmExNjMiLCAibGFiZWwiOiAibWVkaWF0b3ItYWNhcHkiLCAiaGFuZHNoYWtlX3Byb3RvY29scyI6IFsiaHR0cHM6Ly9kaWRjb21tLm9yZy9kaWRleGNoYW5nZS8xLjAiXSwgImFjY2VwdCI6IFsiZGlkY29tbS9haXAyO2Vudj1yZmMxOSJdLCAic2VydmljZXMiOiBbImRpZDpwZWVyOjIuVno2TWtmRXV3U1F2cHdDRFhaTWNhTEdiTlRaWm9HeU1URnB3V0Z5d3REd3BKYUpYcS5FejZMU25qczQ3bWdnUUF1WVBGQXpOMW1FSG5QcUU4R0pOZEpyVkZYWGlrZzdXYk5TLlNleUpwWkNJNklpTmthV1JqYjIxdExUQWlMQ0owSWpvaVpHbGtMV052YlcxMWJtbGpZWFJwYjI0aUxDSndjbWx2Y21sMGVTSTZNQ3dpY21WamFYQnBaVzUwUzJWNWN5STZXeUlqYTJWNUxURWlYU3dpY2lJNlcxMHNJbk1pT2lKM2N6b3ZMekU1TWk0eE5qZ3VNQzR4TVRVNk9EQXdNQ0o5Il19';
 
-const getMediatorInvitation = async () => {
+interface MediatorInvitationResponse {
+  data: {
+    invitationUrl: string;
+  };
+}
+
+const getMediatorInvitation = async (): Promise<{ invitationUrl: string }> => {
   try {
     console.log(Config.DID_URL);
-    const response = await axios.get(`${Config.DID_URL}/polls/mediator-invitation`);
+    const response = await axios.get<MediatorInvitationResponse>(
+      `${Config.DID_URL}/polls/mediator-invitation`);
     return response.data.data;
   } catch (error) {
     console.log('❌ Mediator 초대 정보 요청 실패:', error);
@@ -64,7 +71,11 @@ const getMediatorInvitation = async () => {
   }
 };
 
-export async function createCredoAgent(mediatorUrl = null) {
+export async function createCredoAgent(
+  mediatorUrl: string | null = null,
+  passId?: string,
+  hospitalId?: number
+): Promise<Agent> {
   try {
     console.log('🔄 Agent 초기화 중...');
 
@@ -94,9 +105,11 @@ export async function createCredoAgent(mediatorUrl = null) {
       },
       dependencies: agentDependencies,
       modules: {
-        askar: new AskarModule({}),
+        askar: new AskarModule({
+          ariesAskar,
+        }),
         connections: new ConnectionsModule({
-          autoAcceptConnection: true,
+          autoAcceptConnections: true,
         }),
         outOfBand: new OutOfBandModule(),
         anoncreds: new AnonCredsModule({
@@ -134,9 +147,7 @@ export async function createCredoAgent(mediatorUrl = null) {
         mediationRecipient: new MediationRecipientModule({
           mediatorInvitationUrl: mediatorInvitationUrl,
         }),
-        messagePickup: new MessagePickupModule({
-          mediatorPickupStrategy: MediatorPickupStrategy.Implicit,
-        }),
+        messagePickup: new MessagePickupModule(),
       },
     });
 
@@ -152,10 +163,13 @@ export async function createCredoAgent(mediatorUrl = null) {
     });
 
     await _agent.initialize();
+
     console.log('Agent 초기화 성공');
 
     //Agent 초기화 완료 후 Hospital polling 시작
-    startHospitalPolling(_agent);
+    if (passId && hospitalId) {
+      startHospitalPolling({agent: _agent, passId, hospitalId});
+    }
 
     return _agent;
   } catch (error) {

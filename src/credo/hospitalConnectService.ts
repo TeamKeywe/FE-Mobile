@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer/';
-global.Buffer = Buffer;
+(global as any).Buffer = Buffer;
 
-import { PeerDidNumAlgo } from '@credo-ts/core';
+import { Agent, PeerDidNumAlgo } from '@credo-ts/core';
 
 import '@hyperledger/aries-askar-react-native';
 import 'react-native-get-random-values';
@@ -16,7 +16,7 @@ import Config from 'react-native-config';
 const POLL_INTERVAL = 2000;
 
 // 병원 초대 URL 가져오는 함수 (API 호출)
-export async function getHospitalInvitation(passId, hospitalId) {
+export async function getHospitalInvitation(passId: string, hospitalId:number) {
   try {
     console.log('[getHospitalInvitation] 호출됨', {
       passId,
@@ -39,7 +39,7 @@ export async function getHospitalInvitation(passId, hospitalId) {
 }
 
 // 병원 연결 함수 (초대 URL로 연결)
-export async function connectToHospital(agent, invitationUrl) {
+export async function connectToHospital(agent: Agent, invitationUrl:string) {
   if (!agent || !invitationUrl) return;
   try {
     const result = await agent.dids.create({
@@ -59,10 +59,16 @@ export async function connectToHospital(agent, invitationUrl) {
   }
 }
 
-let globalTimer = null;
+let globalTimer: ReturnType<typeof setInterval> | null = null;
+
+interface PollingParams {
+  agent: Agent
+  passId: string
+  hospitalId: number
+}
 
 // Hospital Polling 함수 (타이머 반환)
-export function startHospitalPolling({ agent, passId, hospitalId }) {
+export function startHospitalPolling({ agent, passId, hospitalId }: PollingParams): () => void {
   if (globalTimer) {
     clearInterval(globalTimer);
     globalTimer = null;
@@ -75,7 +81,7 @@ export function startHospitalPolling({ agent, passId, hospitalId }) {
       if (invitationUrl) {
         console.log('✅ 초대 URL 수신, 병원 연결 시도...');
         await connectToHospital(agent, invitationUrl);
-        clearInterval(globalTimer);
+        clearInterval(globalTimer!);
         console.log('✅ 병원 연결 완료');
         const vcList = await getAllVCs(agent);
         console.log('📄 내 VC 목록:', vcList);
@@ -100,7 +106,7 @@ export function startHospitalPolling({ agent, passId, hospitalId }) {
 }
 
 // 필요하다면 VC 목록 조회 등 기타 함수도 여기에 추가 가능
-export async function getAllVCs(agent) {
+export async function getAllVCs(agent: Agent) {
   if (!agent) return [];
   try {
     const allCreds = await agent.credentials.getAll();
