@@ -1,5 +1,24 @@
+export interface AccessLogData {
+  log_id: string;
+  building_name: string;
+  area_name: string;
+  visitor_category: string; 
+  expired: boolean;
+  timestamp: string;
+  validate_to: string;
+  PatientID: string;
+  requester_category: string;
+}
+
+export interface HospitalAccess {
+  hospital_name: string;
+  accessList: {
+    data: AccessLogData;
+  }[];
+}
+
 //예시데이터
-export const MyAccessList = [
+export const MyAccessList: HospitalAccess[] = [
   {
     hospital_name: '삼성서울병원',
     accessList: [

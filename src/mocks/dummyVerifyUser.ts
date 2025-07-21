@@ -1,5 +1,11 @@
+export interface VerifyUser {
+  name: string;
+  rrn: string;
+  phone: string;
+}
+
 //더미데이터 (개인정보 인증용)
-export const dummyVerifyUser = [
+export const dummyVerifyUser: VerifyUser[] = [
   {
     name: '홍길동',
     rrn: '010111-4000000',
