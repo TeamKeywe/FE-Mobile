@@ -1,13 +1,20 @@
 import axios from './AxiosInstance';
 
+export interface AccessPassForm {
+  visitCategory: 'PATIENT' | 'GUARDIAN';
+  patientCode?: string;
+  startAt: string;
+  hospitalId: number;
+}
+
 // 병원 목록 조회
-export const getHospitalList = async () => {
+export const getHospitalList = async (): Promise<any[]> => {
   const response = await axios.get('/hospitals');
   return response.data.data;
 };
 
 // 환자용: 본인 정보 검증
-export const verifyPatientInfo = async (hospitalId) => {
+export const verifyPatientInfo = async (hospitalId: number): Promise<any> => {
   const response = await axios.post(
     '/patients/verify/patient',
     {},
@@ -22,7 +29,10 @@ export const verifyPatientInfo = async (hospitalId) => {
 };
 
 // 보호자용: 환자 번호 검증
-export const verifyPatientCode = async (patientCode, hospitalId) => {
+export const verifyPatientCode = async (
+    patientCode: string, 
+    hospitalId: number
+  ) => {
   const response = await axios.post(
     '/patients/verify/guardian',
     { patientCode },
@@ -37,7 +47,7 @@ export const verifyPatientCode = async (patientCode, hospitalId) => {
 };
 
 // 병원의 출입증 발급 가능 날짜 조회
-export const getAvailableDates = async (hospitalId) => {
+export const getAvailableDates = async (hospitalId: number): Promise<string[]> => {
   const response = await axios.get('/hospitals/policies/available-dates', {
     headers: {
       'X-Hospital-Id': hospitalId,
@@ -47,7 +57,7 @@ export const getAvailableDates = async (hospitalId) => {
 };
 
 // 출입증 신청
-export const createAccessPass = async (form) => {
+export const createAccessPass = async (form: AccessPassForm) : Promise<any> => {
   const patientCode = form.visitCategory === 'PATIENT' ? '' : form.patientCode;
 
   const response = await axios.post(
@@ -55,7 +65,7 @@ export const createAccessPass = async (form) => {
     {
       visitCategory: form.visitCategory,
       patientCode,
-      startAt: form.checkedDate,
+      startAt: form.startAt,
     },
     {
       headers: {
