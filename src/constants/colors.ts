@@ -12,3 +12,5 @@ export const colors = {
   lightGreen: '#BCCBBE',
   error: '#FF4D4D',
 };
+
+export type ColorKey = keyof typeof colors;

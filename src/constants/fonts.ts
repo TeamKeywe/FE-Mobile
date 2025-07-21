@@ -1,4 +1,6 @@
-export const fonts = {
+import { TextStyle } from 'react-native';
+
+export const fonts: Record<string, TextStyle> = {
   largeTitle: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 25,
