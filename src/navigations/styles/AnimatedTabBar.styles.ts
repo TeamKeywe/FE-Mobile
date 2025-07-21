@@ -1,7 +1,17 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../constants/colors';
 
-export const styles = StyleSheet.create({
+interface TabBarStyles {
+  tabBar: ViewStyle;
+  tab: ViewStyle;
+  iconWrapper: ViewStyle;
+  iconWrapperActive: ViewStyle;
+  label: TextStyle;
+  labelActive: TextStyle;
+  noticeBadge: ViewStyle;
+}
+
+export const styles = StyleSheet.create<TabBarStyles>({
   tabBar: {
     flexDirection: 'row',
     height: 80, // 하단 탭 높이

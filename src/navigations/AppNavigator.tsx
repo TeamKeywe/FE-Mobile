@@ -1,8 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StatusBar, AppState } from 'react-native';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { 
+  StatusBar, 
+  AppState,
+} from 'react-native';
+import { 
+  NavigationContainer, 
+  DefaultTheme,
+  Theme as NavigationTheme,
+  EventArg,
+} from '@react-navigation/native';
+import { 
+  createStackNavigator,
+  StackNavigationOptions,
+} from '@react-navigation/stack';
+import {
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getMyInfo } from '../apis/MyPageApi';
 import { useAuthStore } from '../stores/authStore';
@@ -26,15 +39,52 @@ import MyAccessListPage from '../pages/MyAccessListPage';
 import AccessRequestPage from '../pages/AccessRequestPage';
 import AccessRequestRolePage from '../pages/AccessRequestRolePage';
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+type RootStackParamList = {
+  WelcomePage: undefined;
+  LoginPage: undefined;
+  SignUpPage: undefined;
+  SignUpVerificationPage: undefined;
+};
+
+type BottomTabParamList = {
+  MainPage: undefined;
+  AccessStack: undefined;
+  NoticeStack: undefined;
+  MyPageStack: undefined;
+};
+
+type MyPageStackParamList = {
+  MyPage: undefined;
+  ChangePasswordPage: undefined;
+};
+
+type AccessStackParamList = {
+  AccessListPage: undefined;
+  MyAccessListPage: undefined;
+  AccessRequestPage: undefined;
+  AccessRequestRolePage: {
+    hospitalId: number;
+    hospitalName: string;
+  };
+};
+
+type NoticeStackParamList = {
+  NoticeListPage: undefined;
+};
+
+const MyPageStackNavigator = createStackNavigator<MyPageStackParamList>();
+const AccessStackNavigator = createStackNavigator<AccessStackParamList>();
+const NoticeStackNavigator = createStackNavigator<NoticeStackParamList>();
+
+const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 const PASSWORD_AUTH_VALID_MS = 5 * 60 * 1000; // 비밀번호 재인증 시간 (5분)
 
 // StatusBar 스타일 설정
 const WHITE_TAB_SCREENS = ['MainPage', 'WelcomePage'];
 
 // Stack 네비게이터 옵션
-const screenOptions = {
+const screenOptions: StackNavigationOptions = {
   headerStyle: { backgroundColor: colors.secondary, height: 100 },
   headerTintColor: colors.white,
   headerTitleStyle: { fontWeight: '600', fontSize: 26 },
@@ -48,51 +98,59 @@ const screenOptions = {
 // 마이페이지 스택 네비게이터
 function MyPageStack() {
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
-      <Stack.Screen name="MyPage" component={MyPage} options={{ headerShown: false }} />
-      <Stack.Screen
-        name="ChangePasswordPage"
-        component={ChangePasswordPage}
-        options={{ headerShown: false }}
+    <MyPageStackNavigator.Navigator screenOptions={screenOptions}>
+      <MyPageStackNavigator.Screen 
+        name="MyPage" 
+        component={MyPage} 
+        options={{ headerShown: false }} 
       />
-    </Stack.Navigator>
+      <MyPageStackNavigator.Screen 
+        name="ChangePasswordPage" 
+        component={ChangePasswordPage} 
+        options={{ headerShown: false }} 
+      />
+    </MyPageStackNavigator.Navigator>
   );
 }
 
 // 출입 권한 스택 네비게이터
 function AccessStack() {
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
-      <Stack.Screen
+    <AccessStackNavigator.Navigator screenOptions={screenOptions}>
+      <AccessStackNavigator.Screen
         name="AccessListPage"
         component={AccessListPage}
         options={{ title: '출입 권한' }}
       />
-      <Stack.Screen
+      <AccessStackNavigator.Screen
         name="MyAccessListPage"
         component={MyAccessListPage}
         options={{ title: '권한 목록 조회' }}
       />
-      <Stack.Screen
+      <AccessStackNavigator.Screen
         name="AccessRequestPage"
         component={AccessRequestPage}
         options={{ title: '출입 권한 신청' }}
       />
-      <Stack.Screen
+      <AccessStackNavigator.Screen
         name="AccessRequestRolePage"
         component={AccessRequestRolePage}
         options={{ title: '출입 권한 신청' }}
       />
-    </Stack.Navigator>
+    </AccessStackNavigator.Navigator>
   );
 }
 
 // 알림 스택 네비게이터
 function NoticeStack() {
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
-      <Stack.Screen name="NoticeListPage" component={NoticeListPage} options={{ title: '알림' }} />
-    </Stack.Navigator>
+    <NoticeStackNavigator.Navigator screenOptions={screenOptions}>
+      <NoticeStackNavigator.Screen 
+        name="NoticeListPage" 
+        component={NoticeListPage} 
+        options={{ title: '알림' }} 
+      />
+    </NoticeStackNavigator.Navigator>
   );
 }
 
@@ -145,7 +203,10 @@ export default function AppNavigator() {
   }, [_hasHydrated]);
 
   // 탭 클릭 시 비밀번호 모달 호출
-  const handleTabPress = (e, tabName) => {
+  const handleTabPress = (
+    e: EventArg<'tabPress', true>,
+    tabName: keyof BottomTabParamList
+  ) => {
     if (!lastAuthTime || Date.now() - lastAuthTime > PASSWORD_AUTH_VALID_MS) {
       e.preventDefault();
       showPasswordModal(tabName, currentRouteName || 'MainPage');
@@ -194,7 +255,7 @@ export default function AppNavigator() {
       }}
       onStateChange={() => {
         const route = navigationRef.current?.getCurrentRoute();
-        setCurrentRouteName(route?.name);
+        setCurrentRouteName(route?.name ?? 'MainPage');
       }}
       theme={navTheme}
     >
