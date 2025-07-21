@@ -1,8 +1,16 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../constants/colors';
 import { fonts } from '../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  title: TextStyle;
+  text: TextStyle;
+  textInput: ViewStyle;
+  button: ViewStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   container: {
     marginTop: '10%',
     alignItems: 'center',

@@ -1,13 +1,21 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../constants/colors';
 import { fonts } from '../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  title: TextStyle;
+  scrollView: ViewStyle;
+  textInput: ViewStyle;
+  button: ViewStyle;
+  gongback: ViewStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   title: {
     ...fonts.mediumTitle,
     color: colors.black,
     textAlign: 'center',
-    marginBottom: '7%',
+    marginVertical: '10%',
   },
   scrollView: { alignItems: 'center' },
   textInput: { alignItems: 'center' },
