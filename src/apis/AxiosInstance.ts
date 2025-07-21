@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
 import Config from 'react-native-config';
 import { useAuthStore } from '../stores/authStore';
 
@@ -10,14 +10,14 @@ const instance = axios.create({
 });
 
 // accessToken 가져오는 함수
-const getAccessToken = async () => {
+const getAccessToken = async (): Promise<string | null> => {
   const { accessToken } = useAuthStore.getState();
   return accessToken;
 };
 
 // 요청 인터셉터: 모든 요청에 accessToken 자동 첨부
 instance.interceptors.request.use(
-  async (config) => {
+  async (config: InternalAxiosRequestConfig) => {
     const token = await getAccessToken();
     if (token) {
       config.headers = config.headers || {}; // headers가 없으면 빈 객체로 초기화
@@ -25,16 +25,16 @@ instance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error),
+  (error: AxiosError) => Promise.reject(error),
 );
 
 // 응답 인터셉터: 401(accessToken 만료) → 토큰 재발급 후 재요청
 instance.interceptors.response.use(
-  (response) => {
+  (response: AxiosResponse) => {
     return response;
   },
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     // 401 에러이면서 아직 재시도 하지 않은 요청만 처리
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -64,16 +64,15 @@ instance.interceptors.response.use(
           setAccessToken(tokenValue);
 
           // 기존 헤더는 spread로 보존, Authorization만 교체
-          originalRequest.headers = {
-            ...originalRequest.headers,
-            Authorization: `Bearer ${tokenValue}`,
-          };
+          if (originalRequest.headers) {
+            originalRequest.headers['Authorization'] = `Bearer ${tokenValue}`;
+          }
 
           // POST/PUT 등일 때 data 유실 방지
           if (
-            ['post', 'put', 'patch'].includes(originalRequest.method) &&
+            ['post', 'put', 'patch'].includes(originalRequest.method || '') &&
             !originalRequest.data && // originalRequest에 data가 없고
-            error.config.data // 에러 config에 data가 있으면
+            error.config?.data // 에러 config에 data가 있으면
           ) {
             originalRequest.data = error.config.data; // data를 복구
           }
