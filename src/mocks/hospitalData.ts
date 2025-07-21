@@ -1,4 +1,4 @@
-export const hospitalName = [
+export const hospitalName: string[] = [
   '삼성서울병원',
   '분당서울대병원',
   '서울성모병원',

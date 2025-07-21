@@ -1,4 +1,17 @@
-export const mockAccessList = [
+export type VisitCategory = 'PATIENT' | 'GUARDIAN';
+
+export interface AccessInfo {
+  passId: number;
+  memberId: number;
+  hospitalId: number;
+  accessAreaNames: string[];
+  visitCategory: VisitCategory;
+  patientId: number;
+  startedAt: string; 
+  expiredAt: string; 
+}
+
+export const mockAccessList: AccessInfo[] = [
   {
     passId: 4,
     memberId: 1,
