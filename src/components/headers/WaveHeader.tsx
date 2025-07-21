@@ -1,10 +1,15 @@
+import React from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles/WaveHeader.styles';
 import { colors } from '../../constants/colors';
 
-const WaveHeader = ({ onBackPress }) => {
+interface WaveHeaderProps {
+  onBackPress?: () => void;
+}
+
+const WaveHeader: React.FC<WaveHeaderProps> = ({ onBackPress }) => {
   const navigation = useNavigation();
 
   const handleBackButton = () => {

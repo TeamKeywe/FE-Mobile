@@ -1,6 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, ImageStyle } from 'react-native';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  headerContainer: ViewStyle;
+  waveImage: ImageStyle;
+  headerContent: ViewStyle;
+  backButton: ViewStyle;
+  logoImage: ImageStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   headerContainer: {
     position: 'relative', // 내용이 겹치지 않도록 설정
     width: '100%',
