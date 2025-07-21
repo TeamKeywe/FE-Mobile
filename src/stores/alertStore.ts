@@ -1,14 +1,39 @@
 import { create } from 'zustand';
 
-export const useNormalAlertStore = create((set) => ({
+interface NormalAlertOptions {
+  title?: string;
+  message?: string;
+  showCancel?: boolean;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirmHandler?: () => void;
+  onCancelHandler?: () => void;
+  left?: boolean;
+}
+
+interface NormalAlertStore {
+  show: boolean;
+  title: string;
+  message: string;
+  showCancel: boolean;
+  confirmText: string;
+  cancelText: string;
+  onConfirmHandler: () => void;
+  onCancelHandler: () => void;
+  left: boolean;
+  showNormalAlert: (options: NormalAlertOptions) => void;
+  hideNormalAlert: () => void;
+}
+
+export const useNormalAlertStore = create<NormalAlertStore>((set) => ({
   show: false,
   title: '',
   message: '',
   showCancel: true,
   confirmText: '확인',
   cancelText: '취소',
-  onConfirmHandler: null,
-  onCancelHandler: null,
+  onConfirmHandler: () => {},
+  onCancelHandler: () => {},
   left: false,
 
   // Alert 표시
@@ -51,7 +76,7 @@ export const useNormalAlertStore = create((set) => ({
       title: '',
       message: '',
       showCancel: false,
-      onConfirmHandler: null,
-      onCancelHandler: null,
+      onConfirmHandler: () => {},
+      onCancelHandler: () => {},
     }),
 }));

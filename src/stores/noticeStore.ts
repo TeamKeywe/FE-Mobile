@@ -2,7 +2,15 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const useNoticeBadgeStore = create(
+interface NoticeBadgeStore {
+  lastReadNoticeAt: string | null; 
+  setLastReadNoticeAt: (date: string | null) => void;
+  clearLastReadNoticeAt: () => void;
+  hasUnread: boolean;
+  setHasUnread: (value: boolean) => void;
+}
+
+export const useNoticeBadgeStore = create<NoticeBadgeStore>()(
   persist(
     (set) => ({
       lastReadNoticeAt: null, // 마지막으로 읽은 알림의 ISO 날짜
