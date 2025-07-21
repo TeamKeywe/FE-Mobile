@@ -1,21 +1,37 @@
-import { useState } from 'react';
-import { Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  Text, 
+  ScrollView, 
+  TouchableOpacity,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles/NormalList.styles';
 
-const NormalList = ({
+interface NormalListProps<T> {
+  items?: T[]; 
+  nextPage?: string;
+  onItemPress?: (item: T, index: number) => void;
+  renderItem?: (item: T, index: number, isSelected: boolean) => React.ReactNode;
+  navigationParams?: (item: T) => Record<string, any>;
+  style?: StyleProp<ViewStyle>;
+}
+
+const NormalList = <T extends unknown>({
   items = [], // props가 없거나 undefined일 때를 방지
   nextPage,
   onItemPress,
   renderItem,
   navigationParams, // 다음 페이지에 넘길 정보
   style, // 각 항목 style
-}) => {
+}: NormalListProps<T>) => {
   // 선택 항목의 index 저장
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const navigation = useNavigation();
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const navigation = useNavigation<any>();
 
-  const handleSelect = (index) => {
+  const handleSelect = (index: number) => {
     // 상태변수 변경
     setSelectedIndex(index);
     // onItemPress prop이 있으면 실행
@@ -41,7 +57,7 @@ const NormalList = ({
           {renderItem ? (
             renderItem(item, index, selectedIndex === index)
           ) : (
-            <Text style={styles.itemText}>{item}</Text>
+            <Text style={styles.itemText}>{String(item)}</Text>
           )}
         </TouchableOpacity>
       ))}

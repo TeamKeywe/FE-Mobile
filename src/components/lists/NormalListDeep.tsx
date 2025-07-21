@@ -1,17 +1,39 @@
-import { ScrollView, View, Text, RefreshControl } from 'react-native';
+import React from 'react';
+import { 
+  ScrollView, 
+  View, 
+  Text, 
+  RefreshControl,
+  StyleProp,
+  ViewStyle
+} from 'react-native';
 import { styles } from './styles/NormalListDeep.styles'; //노말리스트와 같은 컴포넌트 스타일을 사용
 import NormalList from './NormalList';
 
+interface Section<T> {
+  contentTitle?: string;
+  accessList: T[];
+}
+
+interface NormalListDeepProps<T> {
+  sections: Section<T>[];
+  onItemPress?: (section: Section<T>, item: T, index: number) => void;
+  renderItem?: (item: T, index: number, isSelected: boolean) => React.ReactNode;
+  cardStyle?: StyleProp<ViewStyle>;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+}
+
 // TODO: Pass-Service 구현 완료 시, 실제 데이터로 변경 필요
 //리스트안에 노말리스트가 있는 컴포넌트
-const NormalListDeep = ({
+const NormalListDeep = <T extends unknown>({
   sections = [],
   onItemPress,
   renderItem,
   cardStyle,
   refreshing = false,
   onRefresh = () => {},
-}) => {
+}: NormalListDeepProps<T>) => {
   return (
     <ScrollView
       style={styles.scrollView}
@@ -19,7 +41,7 @@ const NormalListDeep = ({
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       {sections.map((section, idx) => (
-        <View key={section.contentTitle || idx} style={styles.itemBox}>
+        <View key={section.contentTitle || idx.toString()} style={styles.itemBox}>
           <Text style={styles.itemText}>{section.contentTitle}</Text>
           <NormalList
             items={section.accessList}

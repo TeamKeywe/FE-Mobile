@@ -1,8 +1,17 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 import { fonts } from '../../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  scrollView: ViewStyle;
+  contentContainer: ViewStyle;
+  itemBox: ViewStyle;
+  itemText: TextStyle;
+  // selectedItemBox?: ViewStyle;
+  // selectedItemText?: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   // ScrollView 스타일
   scrollView: {
     minWidth: '80%',
