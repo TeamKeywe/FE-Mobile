@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { getMessaging, getToken } from '@react-native-firebase/messaging';
 import { getApp } from '@react-native-firebase/app';
-import { loginUser } from '../apis/LoginApi';
+import { loginUser, LoginForm } from '../apis/LoginApi';
 import { getMyInfo } from '../apis/MyPageApi';
 import { useAuthStore } from '../stores/authStore';
 import { useNormalAlertStore } from '../stores/alertStore';
@@ -14,35 +14,40 @@ import NormalInput from '../components/textinputs/NormalInput';
 import NormalButton from '../components/buttons/NormalButton';
 import GrayButton from '../components/buttons/GrayButton';
 
-const LoginPage = () => {
+interface ErrorState {
+  email?: string;
+  pw?: string;
+}
+
+const LoginPage: React.FC = () => {
   const { setIsLoggedIn, setLoading, setOnlyAccessToken, setUserInfo } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{ email: string; pw: string; fcmToken?: string }>({
     email: '', // 이메일
     pw: '', // 비밀번호
     fcmToken: '', // FCM 토큰
   });
 
-  const [error, setError] = useState({}); // 에러 메시지
+  const [error, setError] = useState<ErrorState>({}); // 에러 메시지
   const [isPwValid, setIsPwValid] = useState(false); //비밀번호 유효성
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const navigateToSignUp = () => {
     navigation.navigate('SignUpVerificationPage');
   };
 
   //이메일 형식 검증 함수
-  const isValidEmail = (email) => {
+  const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   // 비밀번호 규칙 검사 (8자 이상, 영문/숫자/특수문자 포함)
-  const isValidPassword = (pw) =>
+  const isValidPassword = (pw: string) =>
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/.test(pw);
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: 'email' | 'pw', value: string) => {
     // field : 바꿀 필드의 이름 (ex. name), value : 입력된 새로운 값
     setForm((prev) => ({ ...prev, [field]: value })); //입력값을 form state에 저장 (기존 form 객체 복사 후, 해당 필드만 새 값으로 덮어씀)
 
@@ -58,7 +63,7 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     setLoading(true);
-    let newError = {};
+    const newError: ErrorState = {};
     if (!form.email) newError.email = '이메일을 입력하세요';
     else if (!isValidEmail(form.email)) newError.email = '올바른 이메일 형식이 아닙니다';
     if (!form.pw) newError.pw = '비밀번호를 입력하세요';
@@ -80,7 +85,11 @@ const LoginPage = () => {
       const fcmToken = await getToken(messaging);
 
       // console.log('token: ', fcmToken);
-      const newForm = { ...form, fcmToken };
+      const newForm: LoginForm = {
+        email: form.email,
+        password: form.pw,
+        fcmToken,
+      };
 
       //로그인 API 연결
       const data = await loginUser(newForm);

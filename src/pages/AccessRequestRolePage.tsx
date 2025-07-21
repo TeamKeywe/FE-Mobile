@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
 import { getAvailableDates } from '../apis/AccessRequestApi';
 import { createAccessPass } from '../apis/AccessRequestApi';
 import { useAuthStore } from '../stores/authStore';
@@ -15,20 +15,30 @@ import NormalCheckbox from '../components/checkboxes/NormalCheckbox';
 import PatientVerficationForm from '../components/accessRequests/PatientVerficationForm';
 import GuardianVerificationForm from '../components/accessRequests/GuardianVerificationForm';
 
-const AccessRequestRolePage = ({ route }) => {
+type AccessStackParamList = {
+    AccessRequestRolePage: {
+    hospitalId: number;
+    hospitalName: string;
+  };
+};
+
+const AccessRequestRolePage: React.FC = () => {
+  const route = useRoute<RouteProp<AccessStackParamList, 'AccessRequestRolePage'>>();
   const { hospitalId, hospitalName } = route.params;
 
   const { setLoading } = useAuthStore();
   const { setAgent } = useAgentStore();
 
   const [role, setRole] = useState('PATIENT');
-  const [isVerified, setIsVerified] = useState(false); // 검증 여부
-  const [verifiedData, setVerifiedData] = useState(null); // 자식 컴포넌트의 검증 정보
-  const [checkedDate, setCheckedDate] = useState([]);
-  const [availableDates, setAvailableDates] = useState([]); // 방문 가능 날짜 설정
+  const [isVerified, setIsVerified] = useState<boolean>(false); // 검증 여부
+  const [verifiedData, setVerifiedData] = useState<any>(null); // 자식 컴포넌트의 검증 정보
+  const [checkedDate, setCheckedDate] = useState<boolean[]>([]);
+  const [availableDates, setAvailableDates] = useState<string[]>([]); // 방문 가능 날짜 설정
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
+
+  const pollStopRef = useRef<null | (() => void)>(null); // polling 중단용 ref
 
   // 방문 가능 날짜 불러오기
   useEffect(() => {
@@ -77,12 +87,12 @@ const AccessRequestRolePage = ({ route }) => {
     setRole('GUARDIAN');
   };
 
-  const handleVerified = (data) => {
+  const handleVerified = (data: any) => {
     setIsVerified(true);
     setVerifiedData(data);
   };
 
-  const handleDateCheckbox = (newCheckedList) => {
+  const handleDateCheckbox = (newCheckedList: boolean[]) => {
     setCheckedDate(newCheckedList);
   };
 
@@ -104,8 +114,6 @@ const AccessRequestRolePage = ({ route }) => {
     }
   };
 
-  const pollStopRef = useRef(null); // polling 중단용 ref
-
   const handleConfirmChange = async () => {
     try {
       setLoading(true);
@@ -115,14 +123,16 @@ const AccessRequestRolePage = ({ route }) => {
 
       const form = {
         hospitalId,
-        visitCategory: role,
-        patientCode: verifiedData,
-        checkedDate: selectedDate,
+        visitCategory: role as 'PATIENT' | 'GUARDIAN',
+        patientCode: String(verifiedData), 
+        startAt: selectedDate ?? '',
       };
 
-      let res;
+      let res: any;
       try {
-        res = await createAccessPass(form);
+        res = await createAccessPass(
+          form
+        );
         showNormalAlert({
           title: '방문증 신청 완료',
           message: `방문증 신청이 완료되었습니다.\n메인 페이지로 이동합니다.`,
@@ -215,7 +225,12 @@ const AccessRequestRolePage = ({ route }) => {
               {availableDates.length === 0 && (
                 <>
                   <Text style={styles.noDatesText}>선택 가능한 방문일시가 없습니다.</Text>
-                  <NormalButton title="방문증 신청" style={styles.submitButton} isDisabled={true} />
+                  <NormalButton 
+                    title="방문증 신청" 
+                    style={styles.submitButton} 
+                    isDisabled={true} 
+                    onPressHandler={() => {}}
+                  />
                 </>
               )}
               {availableDates.length > 0 && (

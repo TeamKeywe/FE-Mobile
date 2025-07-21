@@ -1,5 +1,6 @@
+import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { deleteUser, logoutUser } from '../apis/MyPageApi';
 import { useAuthStore } from '../stores/authStore';
 import { useNormalAlertStore } from '../stores/alertStore';
@@ -10,13 +11,17 @@ import WaveHeader from '../components/headers/WaveHeader';
 import NormalInput from '../components/textinputs/NormalInput';
 import GrayButton from '../components/buttons/GrayButton';
 
-export default function MyPage() {
+type RootStackParamList = {
+  ChangePasswordPage: undefined;
+};
+
+const MyPage: React.FC = () => {
   const { clearAccessToken, userInfo } = useAuthStore();
   const { agent, clearAgent } = useAgentStore();
   const { setLoading } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const navigateToChangePassword = () => {
     navigation.navigate('ChangePasswordPage');
@@ -99,22 +104,22 @@ export default function MyPage() {
       <View style={styles.container}>
         <Text style={styles.title}>마이 페이지</Text>
         <NormalInput
-          placeholder={`이름: ${userInfo?.name ?? ''}`}
+          value={`이름: ${userInfo?.name ?? ''}`}
           isEditable={false}
           inputWrpperWidth={{ width: '80%' }}
         />
         <NormalInput
-          placeholder={`생년월일: ${userInfo?.birthDate ?? ''}`}
+          value={`생년월일: ${userInfo?.birthDate ?? ''}`}
           isEditable={false}
           inputWrpperWidth={{ width: '80%' }}
         />
         <NormalInput
-          placeholder={`전화번호: ${userInfo?.contact ?? ''}`}
+          value={`전화번호: ${userInfo?.contact ?? ''}`}
           isEditable={false}
           inputWrpperWidth={{ width: '80%' }}
         />
         <NormalInput
-          placeholder={`이메일: ${userInfo?.email ?? ''}`}
+          value={`이메일: ${userInfo?.email ?? ''}`}
           isEditable={false}
           inputWrpperWidth={{ width: '80%' }}
         />
@@ -129,3 +134,5 @@ export default function MyPage() {
     </ScrollView>
   );
 }
+
+export default MyPage;

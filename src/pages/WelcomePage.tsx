@@ -1,10 +1,16 @@
+import React from 'react';
 import { View, Image, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { styles } from './styles/WelcomePage.styles';
 import NormalButton from '../components/buttons/NormalButton';
 
-const WelcomePage = () => {
-  const navigation = useNavigation();
+type RootStackParamList = {
+  LoginPage: undefined;
+  SignUpVerificationPage: undefined;
+};
+
+const WelcomePage: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const navigateToLogin = () => {
     navigation.navigate('LoginPage');
