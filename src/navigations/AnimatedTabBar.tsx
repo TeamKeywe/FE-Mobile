@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { View, TouchableOpacity, Animated, Text } from 'react-native';
+import { 
+  View, 
+  TouchableOpacity, 
+  Animated, 
+  Text,
+  GestureResponderEvent,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import acccessListIconGreen from '../assets/lotties/accessListIconGreen2.json';
@@ -13,25 +19,40 @@ import myPageIconGray from '../assets/lotties/myPageGray.json';
 import { useNoticeBadge } from '../hooks/useNoticeBadge';
 import { styles } from './styles/AnimatedTabBar.styles';
 import { colors } from '../constants/colors';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { AnimationObject } from 'lottie-react-native';
 
-const TAB_ICONS = {
+const TAB_ICONS: Record<string, (isFocused: boolean) => AnimationObject> = {
   MainPage: (isFocused) => (isFocused ? homeIconGreen : homeIconGray),
   AccessStack: (isFocused) => (isFocused ? acccessListIconGreen : acccessListIconGray),
   MyPageStack: (isFocused) => (isFocused ? myPageIconGreen : myPageIconGray),
   NoticeStack: (isFocused) => (isFocused ? noticeIconGreen : noticeIconGray),
 };
 
-const TAB_LABELS = {
+const TAB_LABELS: Record<string, string> = {
   MainPage: '홈',
   AccessStack: '출입 권한',
   MyPageStack: '마이페이지',
   NoticeStack: '알림',
 };
 
-export default function AnimatedTabBar({ state, descriptors, navigation }) {
-  const scales = useRef(state.routes.map(() => new Animated.Value(1))).current;
-  const tilts = useRef(state.routes.map(() => new Animated.Value(0))).current;
-  const lottieRefs = useRef(state.routes.map(() => React.createRef())).current;
+export default function AnimatedTabBar({ 
+  state, 
+  descriptors, 
+  navigation 
+}: BottomTabBarProps): JSX.Element {
+  const scales = useRef<Animated.Value[]>(
+    state.routes.map(() => new Animated.Value(1))
+  ).current;
+
+  const tilts = useRef<Animated.Value[]>(
+    state.routes.map(() => new Animated.Value(0))
+  ).current;
+
+  const lottieRefs = useRef<React.RefObject<LottieView>[]>(
+    state.routes.map(() => React.createRef<LottieView>())
+  ).current;
+
   const { hasUnread } = useNoticeBadge();
 
   // 포커스 이동 시 Lottie 상태 제어
@@ -49,7 +70,11 @@ export default function AnimatedTabBar({ state, descriptors, navigation }) {
     });
   }, [state.index, state.routes, lottieRefs]);
 
-  const onPress = (route, index, isFocused) => {
+  const onPress = (
+    route: typeof state.routes[number],
+    index: number,
+    isFocused: boolean
+  ) => {
     const event = navigation.emit({
       type: 'tabPress',
       target: route.key,
