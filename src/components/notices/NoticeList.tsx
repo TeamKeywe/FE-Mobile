@@ -1,9 +1,24 @@
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, RefreshControlProps } from 'react-native';
 import NoticeItem from './NoticeItem';
 import { styles } from './styles/NoticeList.styles';
 
-export default function NoticeList({ data, refreshControl }) {
+type AlertType = 'APPROVE' | 'REJECT' | 'APPLY';
+
+interface NoticeData {
+  id: number;
+  type: AlertType;
+  time: string;
+  message: string;
+  date: string;
+}
+
+interface NoticeListProps {
+  data: NoticeData[];
+  refreshControl?: React.ReactElement<RefreshControlProps>;
+}
+
+const NoticeList: React.FC<NoticeListProps> = ({ data, refreshControl }) => {
   if (!data || data.length === 0) {
     return (
       <View style={styles.emptyContainer}>
@@ -13,7 +28,7 @@ export default function NoticeList({ data, refreshControl }) {
   }
 
   // 날짜별로 그룹핑
-  const grouped = data.reduce((acc, item) => {
+  const grouped = data.reduce<Record<string, NoticeData[]>>((acc, item) => {
     acc[item.date] = acc[item.date] || [];
     acc[item.date].push(item);
     return acc;
@@ -43,3 +58,5 @@ export default function NoticeList({ data, refreshControl }) {
     </ScrollView>
   );
 }
+
+export default NoticeList;

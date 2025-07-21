@@ -4,7 +4,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
 import { styles } from './styles/NoticeItem.styles';
 
-const ALERT_TYPE_INFO = {
+type AlertType = 'APPROVE' | 'REJECT' | 'APPLY';
+
+interface NoticeItemProps {
+  type: AlertType;
+  time: string;
+  message: string;
+}
+
+const ALERT_TYPE_INFO: Record<AlertType, {
+  icon: string;
+  iconColor: string;
+  title: string;
+}> = {
   APPROVE: {
     icon: 'checkmark-circle',
     iconColor: colors.primary,
@@ -22,7 +34,7 @@ const ALERT_TYPE_INFO = {
   },
 };
 
-export default function NoticeItem({ type, time, message }) {
+const NoticeItem: React.FC<NoticeItemProps> = ({ type, time, message }) => {
   const info = ALERT_TYPE_INFO[type] || ALERT_TYPE_INFO.APPLY;
   return (
     <View style={styles.box}>
@@ -37,3 +49,5 @@ export default function NoticeItem({ type, time, message }) {
     </View>
   );
 }
+
+export default NoticeItem;

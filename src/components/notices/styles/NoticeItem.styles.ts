@@ -1,8 +1,16 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle, ImageStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 import { fonts } from '../../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  box: ViewStyle;
+  contentHeader: ViewStyle;
+  titleContainer: ViewStyle;
+  iconStyle: ImageStyle;
+  text: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   box: {
     backgroundColor: colors.white,
     padding: 15,
