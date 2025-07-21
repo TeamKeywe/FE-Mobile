@@ -6,6 +6,7 @@ import {
   onMessage,
   onNotificationOpenedApp,
   getInitialNotification,
+  FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
 import { getApp } from '@react-native-firebase/app';
 import { navigationRef, isReadyRef } from './src/navigations/NavigationRef';
@@ -28,7 +29,7 @@ function moveToNotice() {
   }
 }
 
-const App = () => {
+const App: React.FC  = () => {
   // zustand의 상태와 show 함수 한 번에 가져오기
   const alertProps = useNormalAlertStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
@@ -57,7 +58,9 @@ const App = () => {
     const messagingInstance = getMessaging(getApp());
 
     // 포그라운드 알림
-    const unsubscribe = onMessage(messagingInstance, async (remoteMessage) => {
+    const unsubscribe = onMessage(
+        messagingInstance,
+        async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
       showNormalAlert({
         title: remoteMessage.notification?.title || '알림',
         message: remoteMessage.notification?.body || '메시지 도착',
