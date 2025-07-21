@@ -1,8 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '../../../constants/colors';
 import { fonts } from '../../../constants/fonts';
 
-export const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  checkbox: ViewStyle;
+  checked: ViewStyle;
+  label: TextStyle;
+}
+
+export const styles = StyleSheet.create<Styles>({
   // ScrollView 내부 전체 컨텐츠 박스 스타일
   //contentContainer: { paddingVertical: 20 },
   // 체크박스 + 텍스트 감싼 컨테이너 스타일
