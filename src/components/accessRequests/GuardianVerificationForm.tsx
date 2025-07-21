@@ -6,7 +6,12 @@ import { useNormalAlertStore } from '../../stores/alertStore';
 import { styles } from './styles/GuardianVerificationForm.styles';
 import NormalInput from '../textinputs/NormalInput';
 
-const GuardianVerificationForm = ({ hospitalId, onVerifiedHandler }) => {
+interface GuardianVerificationFormProps {
+  hospitalId: number;
+  onVerifiedHandler: (patientCode: string) => void;
+}
+
+const GuardianVerificationForm = ({ hospitalId, onVerifiedHandler }: GuardianVerificationFormProps) => {
   const { setLoading } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
@@ -14,7 +19,7 @@ const GuardianVerificationForm = ({ hospitalId, onVerifiedHandler }) => {
   const [isVerified, setIsVerified] = useState(false);
 
   // 환자 번호 검증 버튼 클릭 핸들러
-  const handleVerifyPatient = async () => {
+  const handleVerifyPatient = async (): Promise<void> => {
     setLoading(true);
     try {
       await verifyPatientCode(patientCode, hospitalId);
@@ -50,13 +55,18 @@ const GuardianVerificationForm = ({ hospitalId, onVerifiedHandler }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.contentTitle}>환자 번호 입력</Text>
-      <View style={styles.inputWithButtonConatiner}>
+      <View style={styles.inputWithButtonContainer}>
         <NormalInput
           placeholder="환자 번호를 입력하세요."
           value={patientCode}
           onChangeTextHandler={setPatientCode}
           isEditable={isVerified ? false : true}
           inputWrpperWidth={{ width: '90%' }}
+          isSecureTextEntry={false}
+          maxLengthNum={undefined}
+          onFocusHandler={undefined}
+          onBlurHandler={undefined}
+          errorText={undefined}
         />
         <TouchableOpacity onPress={handleVerifyPatient} style={styles.verifyButton}>
           <Text style={styles.verifyButtonText}>검증</Text>

@@ -7,13 +7,25 @@ import { styles } from './styles/PatientVerficationForm.styles';
 import NormalButton from '../buttons/NormalButton';
 import NormalInput from '../textinputs/NormalInput';
 
-const PatientVerficationForm = ({ hospitalId, onVerifiedHandler }) => {
+interface PatientVerificationFormProps {
+    hospitalId: number;
+    onVerifiedHandler: (userInfo: {
+    name: string;
+    birthDate: string;
+    contact: string;
+  }) => void;
+}
+
+const PatientVerficationForm = ({ 
+    hospitalId, 
+    onVerifiedHandler 
+  }: PatientVerificationFormProps): JSX.Element => {
   const { setLoading, userInfo } = useAuthStore();
   const showNormalAlert = useNormalAlertStore.getState().showNormalAlert;
 
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState<boolean>(false);
 
-  const handleVerifyPatient = async () => {
+  const handleVerifyPatient = async (): Promise<void> => {
     setLoading(true);
     try {
       await verifyPatientInfo(hospitalId);
@@ -26,7 +38,9 @@ const PatientVerficationForm = ({ hospitalId, onVerifiedHandler }) => {
         showCancel: false,
         confirmText: '확인',
         onConfirmHandler: () => {
+          if (userInfo) {
           onVerifiedHandler(userInfo); // 부모에게 환자 정보 전달
+          }
         },
       });
     } catch (error) {
@@ -46,9 +60,42 @@ const PatientVerficationForm = ({ hospitalId, onVerifiedHandler }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.contentTitle}>개인 정보 확인</Text>
-      <NormalInput placeholder={`이름: ${userInfo?.name ?? ''}`} isEditable={false} />
-      <NormalInput placeholder={`생년월일: ${userInfo?.birthDate ?? ''}`} isEditable={false} />
-      <NormalInput placeholder={`전화번호: ${userInfo?.contact ?? ''}`} isEditable={false} />
+      <NormalInput 
+        placeholder={`이름: ${userInfo?.name ?? ''}`}
+        isEditable={false} 
+        value={userInfo?.name ?? ''}
+        onChangeTextHandler={() => {}}
+        isSecureTextEntry={false}
+        maxLengthNum={undefined}
+        onFocusHandler={undefined}
+        onBlurHandler={undefined}
+        inputWrpperWidth={undefined}
+        errorText={undefined}
+      />
+      <NormalInput 
+        placeholder={`생년월일: ${userInfo?.birthDate ?? ''}`} 
+        isEditable={false} 
+        value={userInfo?.birthDate ?? ''}
+        onChangeTextHandler={() => {}}
+        isSecureTextEntry={false}
+        maxLengthNum={undefined}
+        onFocusHandler={undefined}
+        onBlurHandler={undefined}
+        inputWrpperWidth={undefined}
+        errorText={undefined}
+      />
+      <NormalInput 
+        placeholder={`전화번호: ${userInfo?.contact ?? ''}`} 
+        isEditable={false} 
+        value={userInfo?.contact ?? ''}
+        onChangeTextHandler={() => {}}
+        isSecureTextEntry={false}
+        maxLengthNum={undefined}
+        onFocusHandler={undefined}
+        onBlurHandler={undefined}
+        inputWrpperWidth={undefined}
+        errorText={undefined}
+      />
       {/* 검증되지 않은 경우에만 검증 버튼 표시 */}
       {!isVerified && (
         <NormalButton
